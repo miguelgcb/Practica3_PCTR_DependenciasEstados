@@ -6,4 +6,4 @@ Plantilla para la realización de la tercera práctica de la asignatura de Progr
 Autores: Miguel Alejandro García Bilbao y Alejandro Fernández Perez
 
 
-Descripcion: Realizacion practica 3
+Descripcion: Realizacion practica 3, dependencias de estados, consistente en un parque.
