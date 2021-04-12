@@ -3,7 +3,7 @@ package src.p03.c01;
 public class SistemaLanzador {
 	public static void main(String[] args) {
 		
-		IParque parque = new Parque(); // TODO //esto hay que hacerlo
+		IParque parque = new Parque(); // TODO 
 		char letra_puerta = 'A';
 		
 		System.out.println("¡Parque abierto!");
