@@ -11,7 +11,7 @@ public class ActividadSalidaPuerta implements Runnable {
     private String puerta;
     private static final int NUMSALIDAS = 20;
 
-    public ActividadSalidaPuerta(IParque parque,String puerta) {
+    public ActividadSalidaPuerta(String puerta,IParque parque) {
         this.parque=parque;
         this.puerta=puerta;
     }
