@@ -21,6 +21,15 @@ public class Parque implements IParque {
 		timetotal = 0;
 	}
 
+	public synchronized int getValor() {
+        return contadorPersonasTotales;
+    }
+
+    protected void setValor(int nuevoValor) {
+        contadorPersonasTotales=nuevoValor;
+        notifyAll(); //Despierta a todos los hilos que dependen del valor
+    }
+	
 	@Override
 	public synchronized void entrarAlParque(String puerta) throws InterruptedException { // Anadimos el synchronized ,
 																							// como candado para que
@@ -41,7 +50,7 @@ public class Parque implements IParque {
 		// Imprimimos el estado del parque
 		imprimirInfo(puerta, "Entrada");
 
-		// Medición del tiempo medi
+		// Mediciï¿½n del tiempo medi
 		timetotal += (System.currentTimeMillis() - timeinicial) / 1000;
 		timemedio = timetotal / contadorPersonasTotales;
 
@@ -58,9 +67,34 @@ public class Parque implements IParque {
 	// Metodo Salir del Parque
 
 	@Override
-	public void salirDelParque(String puerta) {
+	public void salirDelParque(String puerta) throws InterruptedException { 
+		
+		esperarSalirEstadoInferior();
 
-	}
+        if(contadoresPersonasPuerta.get(puerta)==null) {
+            contadoresPersonasPuerta.remove(puerta);
+        }
+
+        //Aumentamos contadores que hagan falta
+        setValor(contadorPersonasTotales-1);
+        contadoresPersonasPuerta.put(puerta,contadoresPersonasPuerta.get(puerta)-1);
+
+        //MediciÃ³n del tiempo medi
+        timetotal += (System.currentTimeMillis()-timeinicial)/1000;
+        timemedio=timetotal/contadorPersonasTotales;
+
+        //Imprimir  estado del parque
+        imprimirInfo(puerta, "Salida");
+
+        //Check invariante
+        checkInvariante();
+    }
+
+    protected void esperarSalirEstadoInferior() throws InterruptedException{
+        while(contadorPersonasTotales==MINPER)
+            wait();
+    }
+
 
 	private void imprimirInfo(String puerta, String movimiento) {
 		System.out.println(movimiento + " por puerta " + puerta);
