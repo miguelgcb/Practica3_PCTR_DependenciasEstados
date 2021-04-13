@@ -6,30 +6,33 @@ import java.util.Hashtable;
 public class Parque implements IParque {
 
 	private long timeinicial;
-    private long timetotal;
-    private long timemedio;
+	private long timetotal;
+	private long timemedio;
 	private int contadorPersonasTotales;
 	private Hashtable<String, Integer> contadoresPersonasPuerta;
-	private static final int MINPER=0;  //mínimo valor que se nos permite
-    private static final int MAXPER=40;  //máximo valor que se nos permite
+	private static final int MINPER = 0; // mínimo valor que se nos permite
+	private static final int MAXPER = 40; // máximo valor que se nos permite
 
 	public Parque() { // TODO
 		contadorPersonasTotales = 0;
 		contadoresPersonasPuerta = new Hashtable<String, Integer>();
-		timeinicial=System.currentTimeMillis();
-        timemedio=0;
-        timetotal=0;
+		timeinicial = System.currentTimeMillis();
+		timemedio = 0;
+		timetotal = 0;
 	}
 
 	@Override
-	public void entrarAlParque(String puerta) { // TODO
+	public synchronized void entrarAlParque(String puerta) throws InterruptedException { // Anadimos el synchronized ,
+																							// como candado para que
+																							// solo uno de los hilos
+																							// pueda acceder al metodo.
 
 		// Si no hay entradas por esa puerta, inicializamos
 		if (contadoresPersonasPuerta.get(puerta) == null) {
 			contadoresPersonasPuerta.put(puerta, 0);
 		}
 
-		// TODO
+		esperarSalirEstadoSuperior();
 
 		// Aumentamos el contador total y el individual
 		contadorPersonasTotales++;
@@ -38,19 +41,25 @@ public class Parque implements IParque {
 		// Imprimimos el estado del parque
 		imprimirInfo(puerta, "Entrada");
 
-		// TODO
+		// Medici�n del tiempo medi
+		timetotal += (System.currentTimeMillis() - timeinicial) / 1000;
+		timemedio = timetotal / contadorPersonasTotales;
 
-		// TODO
+		// Check invariante
+		checkInvariante();
 
 	}
 
-	
-	//Metodo Salir del Parque
+	protected void esperarSalirEstadoSuperior() throws InterruptedException {
+		while (contadorPersonasTotales == MAXPER)
+			wait();
+	}
+
+	// Metodo Salir del Parque
 
 	@Override
 	public void salirDelParque(String puerta) {
 
-		
 	}
 
 	private void imprimirInfo(String puerta, String movimiento) {
