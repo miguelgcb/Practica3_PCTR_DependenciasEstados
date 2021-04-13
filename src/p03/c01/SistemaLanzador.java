@@ -6,7 +6,7 @@ public class SistemaLanzador {
 		Parque parque = new Parque(); 
 		char letra_puerta = 'A';
 
-		System.out.println("Â¡Parque abierto!");
+		System.out.println("¡Parque abierto!");
 
 		for (int i = 0; i < Integer.parseInt(args[0]); i++) {
 
