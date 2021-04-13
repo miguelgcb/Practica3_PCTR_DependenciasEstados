@@ -5,14 +5,20 @@ import java.util.Hashtable;
 
 public class Parque implements IParque {
 
-	// TODO
+	private long timeinicial;
+    private long timetotal;
+    private long timemedio;
 	private int contadorPersonasTotales;
 	private Hashtable<String, Integer> contadoresPersonasPuerta;
+	private static final int MINPER=0;  //mínimo valor que se nos permite
+    private static final int MAXPER=40;  //máximo valor que se nos permite
 
 	public Parque() { // TODO
 		contadorPersonasTotales = 0;
 		contadoresPersonasPuerta = new Hashtable<String, Integer>();
-		// TODO
+		timeinicial=System.currentTimeMillis();
+        timemedio=0;
+        timetotal=0;
 	}
 
 	@Override
