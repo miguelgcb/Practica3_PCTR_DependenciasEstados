@@ -90,13 +90,13 @@ public class Parque implements IParque {
 		// TODO
 	}
 
-	protected void comprobarAntesDeEntrar() { // TODO
+	protected void comprobarAntesDeEntrar() throws InterruptedException { 
 		//
 		// TODO
 		//
 	}
 
-	protected void comprobarAntesDeSalir() { // TODO
+	protected void comprobarAntesDeSalir() throws InterruptedException{ 
 		//
 		// TODO
 		//
