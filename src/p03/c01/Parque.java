@@ -7,18 +7,19 @@ public class Parque implements IParque {
 
 	private int contadorPersonasTotales;
 	private Hashtable<String, Integer> contadoresPersonasPuerta;
-	private int maximoPermitido; // máximo valor que se nos permite
+	private int aforo;
 
-	public Parque(int maximoPermitido) {
+	public Parque(int aforo) { // Le pasamos al constructor el aforo dle parque
 		contadorPersonasTotales = 0;
 		contadoresPersonasPuerta = new Hashtable<String, Integer>();
+		this.aforo = aforo;
 	}
 
 	@Override
-	public synchronized void entrarAlParque(String puerta) throws InterruptedException { // Anadimos el synchronized ,
-																							// como candado para que
-																							// solo uno de los hilos
-																							// pueda acceder al metodo.
+	public synchronized void entrarAlParque(String puerta) { // Anadimos el synchronized ,
+																// como candado para que
+																// solo uno de los hilos
+																// pueda acceder al metodo.
 
 		// Si no hay entradas por esa puerta, inicializamos
 		if (contadoresPersonasPuerta.get(puerta) == null) {
@@ -33,10 +34,10 @@ public class Parque implements IParque {
 		contadorPersonasTotales++;
 		contadoresPersonasPuerta.put(puerta, contadoresPersonasPuerta.get(puerta) + 1);
 
-		notifyAll();
-
 		// Imprimimos el estado del parque
 		imprimirInfo(puerta, "Entrada");
+
+		this.notifyAll();
 
 		// Check invariante
 		checkInvariante();
@@ -46,24 +47,27 @@ public class Parque implements IParque {
 	// Metodo Salir del Parque
 
 	@Override
-	public void salirDelParque(String puerta) throws InterruptedException {
+	public void salirDelParque(String puerta) {
 
 		if (contadoresPersonasPuerta.get(puerta) == null) {
 			contadoresPersonasPuerta.remove(puerta);
-
 		}
-
-		// Comprobamos antes de salir
 
 		comprobarAntesDeSalir();
 
+		contadorPersonasTotales--;
+		contadoresPersonasPuerta.put(puerta, contadoresPersonasPuerta.get(puerta) - 1);
+
+		// Imprimimos el estado del parque
+
 		sumarContadoresPuerta();
 
-		// Imprimir estado del parque
 		imprimirInfo(puerta, "Salida");
 
-		// Check invariante
+		this.notifyAll();
+
 		checkInvariante();
+
 	}
 
 	private void imprimirInfo(String puerta, String movimiento) {
@@ -90,21 +94,27 @@ public class Parque implements IParque {
 	protected void checkInvariante() {
 		assert sumarContadoresPuerta() == contadorPersonasTotales
 				: "INV: La suma de contadores de las puertas debe ser igual al valor del contador del parte";
-		assert contadorPersonasTotales <= maximoPermitido : "No se permiten mas personas.";
+		assert contadorPersonasTotales <= aforo : "No se permiten mas personas.";
 		assert contadorPersonasTotales >= 0 : "Error en la gestion de salidas.";
 	}
 
-	protected void comprobarAntesDeEntrar() throws InterruptedException {
-		while (contadorPersonasTotales == maximoPermitido) {
-			wait();
-
+	protected void comprobarAntesDeEntrar() {
+		while (contadorPersonasTotales == aforo) {
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
-	protected void comprobarAntesDeSalir() throws InterruptedException {
+	protected void comprobarAntesDeSalir() {
 		while (contadorPersonasTotales == 0) {
-			wait();
-
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
