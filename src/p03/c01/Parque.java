@@ -90,7 +90,7 @@ public class Parque implements IParque {
 	protected void checkInvariante() {
 		assert sumarContadoresPuerta() == contadorPersonasTotales
 				: "INV: La suma de contadores de las puertas debe ser igual al valor del contador del parte";
-		assert contadorPersonasTotales < maximoPermitido : "No se permiten mas personas.";
+		assert contadorPersonasTotales <= maximoPermitido : "No se permiten mas personas.";
 		assert contadorPersonasTotales >= 0 : "Error en la gestion de salidas.";
 	}
 
