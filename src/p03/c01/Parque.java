@@ -5,31 +5,15 @@ import java.util.Hashtable;
 
 public class Parque implements IParque {
 
-	private long timeinicial;
-	private long timetotal;
-	private long timemedio;
 	private int contadorPersonasTotales;
 	private Hashtable<String, Integer> contadoresPersonasPuerta;
-	private static final int MINPER = 0; // mínimo valor que se nos permite
-	private static final int MAXPER = 40; // máximo valor que se nos permite
+	private int maximoPermitido; // máximo valor que se nos permite
 
-	public Parque() { // TODO
+	public Parque(int maximoPermitido) {
 		contadorPersonasTotales = 0;
 		contadoresPersonasPuerta = new Hashtable<String, Integer>();
-		timeinicial = System.currentTimeMillis();
-		timemedio = 0;
-		timetotal = 0;
 	}
 
-	public synchronized int getValor() {
-        return contadorPersonasTotales;
-    }
-
-    protected void setValor(int nuevoValor) {
-        contadorPersonasTotales=nuevoValor;
-        notifyAll(); //Despierta a todos los hilos que dependen del valor
-    }
-	
 	@Override
 	public synchronized void entrarAlParque(String puerta) throws InterruptedException { // Anadimos el synchronized ,
 																							// como candado para que
@@ -41,60 +25,46 @@ public class Parque implements IParque {
 			contadoresPersonasPuerta.put(puerta, 0);
 		}
 
-		esperarSalirEstadoSuperior();
+		// Comprobamos el estado
+
+		comprobarAntesDeEntrar();
 
 		// Aumentamos el contador total y el individual
 		contadorPersonasTotales++;
 		contadoresPersonasPuerta.put(puerta, contadoresPersonasPuerta.get(puerta) + 1);
 
+		notifyAll();
+
 		// Imprimimos el estado del parque
 		imprimirInfo(puerta, "Entrada");
-
-		// Medici�n del tiempo medi
-		timetotal += (System.currentTimeMillis() - timeinicial) / 1000;
-		timemedio = timetotal / contadorPersonasTotales;
 
 		// Check invariante
 		checkInvariante();
 
 	}
 
-	protected void esperarSalirEstadoSuperior() throws InterruptedException {
-		while (contadorPersonasTotales == MAXPER)
-			wait();
-	}
-
 	// Metodo Salir del Parque
 
 	@Override
-	public void salirDelParque(String puerta) throws InterruptedException { 
-		
-		esperarSalirEstadoInferior();
+	public void salirDelParque(String puerta) throws InterruptedException {
 
-        if(contadoresPersonasPuerta.get(puerta)==null) {
-            contadoresPersonasPuerta.remove(puerta);
-        }
+		if (contadoresPersonasPuerta.get(puerta) == null) {
+			contadoresPersonasPuerta.remove(puerta);
 
-        //Aumentamos contadores que hagan falta
-        setValor(contadorPersonasTotales-1);
-        contadoresPersonasPuerta.put(puerta,contadoresPersonasPuerta.get(puerta)-1);
+		}
 
-        //Medición del tiempo medi
-        timetotal += (System.currentTimeMillis()-timeinicial)/1000;
-        timemedio=timetotal/contadorPersonasTotales;
+		// Comprobamos antes de salir
 
-        //Imprimir  estado del parque
-        imprimirInfo(puerta, "Salida");
+		comprobarAntesDeSalir();
 
-        //Check invariante
-        checkInvariante();
-    }
+		sumarContadoresPuerta();
 
-    protected void esperarSalirEstadoInferior() throws InterruptedException{
-        while(contadorPersonasTotales==MINPER)
-            wait();
-    }
+		// Imprimir estado del parque
+		imprimirInfo(puerta, "Salida");
 
+		// Check invariante
+		checkInvariante();
+	}
 
 	private void imprimirInfo(String puerta, String movimiento) {
 		System.out.println(movimiento + " por puerta " + puerta);
@@ -120,20 +90,22 @@ public class Parque implements IParque {
 	protected void checkInvariante() {
 		assert sumarContadoresPuerta() == contadorPersonasTotales
 				: "INV: La suma de contadores de las puertas debe ser igual al valor del contador del parte";
-		// TODO
-		// TODO
+		assert contadorPersonasTotales < maximoPermitido : "No se permiten mas personas.";
+		assert contadorPersonasTotales >= 0 : "Error en la gestion de salidas.";
 	}
 
-	protected void comprobarAntesDeEntrar() throws InterruptedException { 
-		//
-		// TODO
-		//
+	protected void comprobarAntesDeEntrar() throws InterruptedException {
+		while (contadorPersonasTotales == maximoPermitido) {
+			wait();
+
+		}
 	}
 
-	protected void comprobarAntesDeSalir() throws InterruptedException{ 
-		//
-		// TODO
-		//
+	protected void comprobarAntesDeSalir() throws InterruptedException {
+		while (contadorPersonasTotales == 0) {
+			wait();
+
+		}
 	}
 
 }

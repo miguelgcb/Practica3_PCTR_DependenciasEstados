@@ -2,13 +2,13 @@ package src.p03.c01;
 
 public class SistemaLanzador {
 	public static void main(String[] args) {
-
-		Parque parque = new Parque(); 
+		final int AFORO = 50;
+		IParque parque = new Parque(AFORO);
 		char letra_puerta = 'A';
 
 		System.out.println("¡Parque abierto!");
 
-		for (int i = 0; i < Integer.parseInt(args[0]); i++) {
+		for (int i = 0; i < Integer.parseInt(args[0]); i++) { // En los argumentos de ejecucion poner un 5.
 
 			String puerta = "" + ((char) (letra_puerta++));
 
@@ -16,10 +16,9 @@ public class SistemaLanzador {
 			ActividadEntradaPuerta entradas = new ActividadEntradaPuerta(puerta, parque);
 			new Thread(entradas).start();
 
-			//Creacion de hilos de salida
+			// Creacion de hilos de salida
 			ActividadSalidaPuerta salidas = new ActividadSalidaPuerta(puerta, parque);
 			new Thread(salidas).start();
-
 
 		}
 	}
